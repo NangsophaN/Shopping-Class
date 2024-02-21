@@ -1,112 +1,139 @@
-public class Customer implements DiscountRate {
+import java.util.Scanner;
 
-    private String customerName;
-    private String customerType;
+public class Main {
 
-    public Customer(String customerName, String customerType) {
-        this.customerName = customerName;
-        this.customerType = customerType;
+    public interface DiscountRate {
+        double getServiceMemberDiscount();
+
+        double getProductMemberDiscount();
     }
 
-    public String getCustomerName() {
-        return customerName;
-    }
+    public static class Customer implements DiscountRate {
+        private String customerName;
+        private String customerType;
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
+        public Customer(String customerName, String customerType) {
+            this.customerName = customerName;
+            this.customerType = customerType;
+        }
 
-    public String getCustomerType() {
-        return customerType;
-    }
+        public String getCustomerName() {
+            return customerName;
+        }
 
-    public void setCustomerType(String customerType) {
-        this.customerType = customerType;
-    }
+        public void setCustomerName(String customerName) {
+            this.customerName = customerName;
+        }
 
-    @Override
-    public double getServiceDiscount() {
-        switch (getCustomerType()) {
-            case "Premium":
-                return 0.2;
-            case "Gold":
-                return 0.15;
-            case "Silver":
-                return 0.1;
-            default:
-                return 0;
+        public String getCustomerType() {
+            return customerType;
+        }
+
+        public void setCustomerType(String customerType) {
+            this.customerType = customerType;
+        }
+
+        @Override
+        public double getServiceMemberDiscount() {
+            switch (customerType) {
+                case "Premium":
+                    return 0.2; // 20% discount
+                case "Gold":
+                    return 0.15; // 15% discount
+                case "Silver":
+                    return 0.1; // 10% discount
+                default:
+                    return 0; // 0% discount
+            }
+        }
+
+        @Override
+        public double getProductMemberDiscount() {
+            switch (customerType) {
+                case "Premium":
+                    return 0.1; // 10% discount
+                case "Gold":
+                    return 0.1; // 10% discount
+                case "Silver":
+                    return 0.1; // 10% discount
+                default:
+                    return 0; // 0% discount
+            }
         }
     }
 
-    @Override
-    public double getProductDiscount() {
-        switch (getCustomerType()) {
-            case "Premium":
-            case "Gold":
-            case "Silver":
-                return 0.1;
-            default:
-                return 0;
+    public static class Sale {
+        private Customer customer;
+        private String date;
+        private double serviceExpense;
+        private double productExpense;
+
+        public Sale(Customer customer, String date) {
+            this.customer = customer;
+            this.date = date;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public double getServiceExpense() {
+            return serviceExpense;
+        }
+
+        public void setServiceExpense(double serviceExpense) {
+            this.serviceExpense = serviceExpense;
+        }
+
+        public double getProductExpense() {
+            return productExpense;
+        }
+
+        public void setProductExpense(double productExpense) {
+            this.productExpense = productExpense;
+        }
+
+        public double getTotalExpense() {
+            return serviceExpense + productExpense;
+        }
+
+        public double getDiscountedExpense() {
+            double serviceDiscount = serviceExpense * customer.getServiceMemberDiscount();
+            double productDiscount = productExpense * customer.getProductMemberDiscount();
+            return serviceExpense - serviceDiscount + productExpense - productDiscount;
+        }
+
+        public double getSavings() {
+            return getTotalExpense() - getDiscountedExpense();
         }
     }
-}
 
-public class Sale {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
 
-    private Customer customer;
-    private String date;
-    private double serviceExpense;
-    private double productExpense;
+        System.out.println("Enter customer name:");
+        String customerName = scanner.nextLine();
 
-    public Sale(Customer customer, String date) {
-        this.customer = customer;
-        this.date = date;
-    }
+        System.out.println("Enter customer type (Premium, Gold, Silver):");
+        String customerType = scanner.nextLine();
 
-    public Customer getCustomer() {
-        return customer;
-    }
+        Customer customer = new Customer(customerName, customerType);
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
+        System.out.println("Enter sale date (yyyy-mm-dd):");
+        String date = scanner.nextLine();
 
-    public String getDate() {
-        return date;
-    }
+        System.out.println("Enter service expense:");
+        double serviceExpense = scanner.nextDouble();
 
-    public void setDate(String date) {
-        this.date = date;
-    }
+        System.out.println("Enter product expense:");
+        double productExpense = scanner.nextDouble();
 
-    public double getServiceExpense() {
-        return serviceExpense;
-    }
+        Sale sale = new Sale(customer, date);
+        sale.setServiceExpense(serviceExpense);
+        sale.setProductExpense(productExpense);
 
-    public void setServiceExpense(double serviceExpense) {
-        this.serviceExpense = serviceExpense;
-    }
-
-    public double getProductExpense() {
-        return productExpense;
-    }
-
-    public void setProductExpense(double productExpense) {
-        this.productExpense = productExpense;
-    }
-
-    public double getTotalExpense() {
-        return serviceExpense + productExpense;
-    }
-
-    public void DisplayInfo() {
-        System.out.println("Customer Name: " + customer.getCustomerName());
-        System.out.println("Customer Type: " + customer.getCustomerType());
-        System.out.println("Date: " + date);
-        System.out.println("Service Expense: " + serviceExpense);
-        System.out.println("Product Expense: " + productExpense);
-        System.out.println("Total Expense: " + getTotalExpense());
-        System.out.println("Service Discount: " + customer.getServiceDiscount());
-        System.out.println("Product Discount: " + customer.getProductDiscount());
+        System.out.println("Total expense: " + sale.getTotalExpense());
+        System.out.println("Discounted expense: " + sale.getDiscountedExpense());
+        System.out.println("Savings: " + sale.getSavings());
     }
 }
